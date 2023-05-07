@@ -2,8 +2,8 @@
 //ESP8266 ESP-NOW KULLANIMI
 //Alıcı Kodu
 
-#include <ESP8266WiFi.h>
-#include <espnow.h>
+#include <WiFi.h>
+#include <esp_now.h>
 #include <Wire.h>
 
 
@@ -19,9 +19,9 @@ int butondurum=0; //butonu takip için
 // Alıncak veri yapısı için structure tanımlama
 // Gönderici kartlar ile aynı yapı olmalı
 typedef struct struct_message {
-  int time; //zaman
-  char name[]; //isim
-  long tc; //tc
+  int a; //zaman
+  int b; //isim
+  int c; //tc
 
 } struct_message;
 
@@ -29,16 +29,17 @@ typedef struct struct_message {
 struct_message myData;
 
 // VERİ ALIMI OLDUĞUNDA BU FONKSİYON ÇALIŞACAK
-void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
-  memcpy(&myData, incomingData, sizeof(myData));
+void OnDataRecv(const unsigned char * mac, const unsigned char *incomingData, int len) {
+  //uint8_t * mac, uint8_t *incomingData, uint8_t len
+  //memcpy(&myData, incomingData, sizeof(myData));
   Serial.print("Byte veri alındı: ");
-  Serial.println(len);
+  //Serial.println(len);
   Serial.print("Zaman: ");
-  Serial.println(myData.time);
+  Serial.println(myData.a);
   Serial.print("İsim: ");
-  Serial.println(myData.name[]);
+  Serial.println(myData.b);
   Serial.print("TC: ");
-  Serial.println(myData.tc);
+  Serial.println(myData.c);
 
 //   Serial.println();
 //   if (myData.time==1)
@@ -62,7 +63,7 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
 void setup() {
   
   Serial.begin(115200);
-  pinMode(buton, INPUT_PULLUP);
+
   // Alıcı cihazı WIFI STATION olarak tanımlamamız gerekiyor
   WiFi.mode(WIFI_STA);
 
@@ -76,17 +77,6 @@ void setup() {
   // kartın rolünü tanımladık ve veri alındığında çağrılacak fonksiyonu ilişkilendiriyoruz.
   esp_now_set_self_role(ESP_NOW_ROLE_SLAVE);
   esp_now_register_recv_cb(OnDataRecv);
-
-  
-   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { //Eğer ekran başlatılamazsa hata mesajı verecek
-    Serial.println(F("SSD1306 ekran hatası"));
-    for(;;);//sonsuza kadar döner buradan çıkmaz
-  }
-  delay(2000);
-  display.clearDisplay();//ekranı temizliyoruz.
-  display.setTextColor(WHITE);//ekran yazı rengini beyaza ayarladık
-
-
    
 }
 

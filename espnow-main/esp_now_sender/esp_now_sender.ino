@@ -2,10 +2,10 @@
 //ESP8266 ESP-NOW KULLANIMI
 //Verici Kodu
 
-
+#include <ESP8266WiFi.h>
 #include <espnow.h>
 // Alıcının MAC Adresini buraya yazalım
-uint8_t broadcastAddress[] = {0x98, 0xF4, 0xAB, 0xDA, 0xF0, 0x41}; 
+uint8_t broadcastAddress[] = {0xC8, 0xF0, 0x9E, 0x9E, 0x1A, 0x6C}; 
 
 // gönderilecek veriler için bir veri yapısı tanımlamamız lazım
 // Bu veri yapısı alıcı tarafında da aynı olmalı
