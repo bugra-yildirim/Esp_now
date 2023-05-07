@@ -17,8 +17,6 @@
 typedef struct struct_message {
     char a[3];
     char b[3];
-    float c;
-    bool d;
 } struct_message;
 
 // Create a struct_message called myData
@@ -33,11 +31,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(myData.a);
   Serial.print("char: ");
   Serial.println(myData.b);
-  Serial.print("Float: ");
-  Serial.println(myData.c);
-  Serial.print("Bool: ");
-  Serial.println(myData.d);
-  Serial.println();
 }
  
 void setup() {
