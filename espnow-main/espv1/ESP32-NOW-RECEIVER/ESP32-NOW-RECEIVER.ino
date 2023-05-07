@@ -15,8 +15,8 @@
 /* Structure example to receive data. */
 /* Must match the sender structure. */
 typedef struct struct_message {
-    char a[32];
-    int b;
+    char a[3];
+    char b[3];
     float c;
     bool d;
 } struct_message;
@@ -31,7 +31,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(len);
   Serial.print("Char: ");
   Serial.println(myData.a);
-  Serial.print("Int: ");
+  Serial.print("char: ");
   Serial.println(myData.b);
   Serial.print("Float: ");
   Serial.println(myData.c);
