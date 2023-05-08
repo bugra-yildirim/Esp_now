@@ -49,5 +49,9 @@ void setup() {
 }
  
 void loop() {
+  //memory functions
+  //dedectors
+  //alarm
+  //situation codes
 
 }
