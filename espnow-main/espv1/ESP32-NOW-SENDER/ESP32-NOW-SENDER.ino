@@ -20,10 +20,9 @@ uint8_t broadcastAddress[] = {0x30, 0xC6, 0xF7, 0x04, 0x25, 0x10};
 /* Structure example to send data. */
 /* Must match the receiver structure. */
 typedef struct struct_message {
-  char a[32];
-  int b;
-  float c;
-  bool d;
+    bool halit;
+    bool emirhan;
+    bool buse;
 } struct_message;
 
 /* Create a struct_message called myData */
@@ -68,10 +67,9 @@ void setup() {
  
 void loop() {
   // Set values to send
-  strcpy(myData.a, "THIS IS A CHAR");
-  myData.b = random(1,20);
-  myData.c = 1.2;
-  myData.d = false;
+  myData.halit = 1;  //rfıd den gelen verilerle kararlaştırılıcak.
+  myData.emirhan = 1;
+  myData.buse = 0;
   
   /* Send message via ESP-NOW. */
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
