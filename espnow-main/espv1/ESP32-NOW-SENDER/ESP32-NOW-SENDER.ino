@@ -1,14 +1,9 @@
+
+//update mac addresses
 // SENDER MAC ADDRESS -> // uint8_t broadcastAddress[] = {0x30, 0xC6, 0xF7, 0x03, 0xFC, 0x94};  // 0 has damage
 // RECEIVER MAC ADDRESS -> // uint8_t broadcastAddress[] = {0x30, 0xC6, 0xF7, 0x04, 0x25, 0x10};  // 4 has damage
 /*
-  Rui Santos
-  Complete project details at https://RandomNerdTutorials.com/esp-now-esp32-arduino-ide/
-  
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files.
-  
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
+
 */
 
 #include <esp_now.h>
