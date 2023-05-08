@@ -82,12 +82,12 @@ void setup() {
 }
  
 void loop() {
-  // Set values to send
-
-  
+  1
   /* Send message via ESP-NOW. */
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
   delay(1000);
+
+      //gönderme durumunu belirten kod bloğu, seri monitör kalabalığından devre dışı bırakıldı
   // if (result == ESP_OK) {
   //   Serial.println("Sent with success");
   // }
@@ -117,8 +117,8 @@ void loop() {
   212
   };
 
-
-  // if (rfid.PICC_IsNewCardPresent()) { // new tag is available
+  //rfid hex dönüştürücü
+  // if (rfid.PICC_IsNewCardPresent()) { // new tag is available 
   //   if (rfid.PICC_ReadCardSerial()) { // NUID has been readed
   //     MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
   //     Serial.print("RFID/NFC Tag Type: ");
@@ -134,7 +134,12 @@ void loop() {
 
   //     rfid.PICC_HaltA(); // halt PICC
   //     rfid.PCD_StopCrypto1(); // stop encryption on PCD
-  //   }    
+  //   }
+
+
+
+  
+      
   if (!rfid.PICC_IsNewCardPresent()) //Yeni kartın okunmasını bekliyoruz.
     return;
 
@@ -196,7 +201,7 @@ void loop() {
   rfid.PICC_HaltA();    
 }
 
-
+// id seri monitöre yazdırma kodu
 void ekranaYazdir() {
   Serial.print("ID Numarasi: ");
   for (int sayac = 0; sayac < 4; sayac++) {
