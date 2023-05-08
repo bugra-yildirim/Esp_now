@@ -49,7 +49,7 @@ void setup() {
   SPI.begin(); // init SPI bus
   rfid.PCD_Init(); // init MFRC522
   Serial.println("Tap an RFID/NFC tag on the RFID-RC522 reader");
-
+  
   
   /* Set device as a Wi-Fi Station. */
   WiFi.mode(WIFI_STA);
@@ -74,16 +74,16 @@ void setup() {
     Serial.println("Failed to add peer");
     return;
   }
-
+  myData.halit = 0;  //herkes dışarıda ayarlandı
+  myData.emirhan = 0;
+  myData.buse = 0;
   
   
 }
  
 void loop() {
   // Set values to send
-  myData.halit = 1;  //rfıd den gelen verilerle kararlaştırılıcak.
-  myData.emirhan = 1;
-  myData.buse = 0;
+
   
   /* Send message via ESP-NOW. */
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
@@ -95,23 +95,115 @@ void loop() {
   //   Serial.println("Error sending the data");
   // }
 
+  //halit id 
+  byte ID1[4] = {
+  243,
+  214,
+  53,
+  201
+  };
+  //emirhan id 
+  byte ID2[4] = {
+  99,
+  176,
+  214,
+  52
+  };
+  //buse id 
+  byte ID3[4] = {
+  249,
+  198,
+  188,
+  212
+  };
 
-  if (rfid.PICC_IsNewCardPresent()) { // new tag is available
-    if (rfid.PICC_ReadCardSerial()) { // NUID has been readed
-      MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
-      Serial.print("RFID/NFC Tag Type: ");
-      Serial.println(rfid.PICC_GetTypeName(piccType));
 
-      // print UID in Serial Monitor in the hex format
-      Serial.print("UID:");
-      for (int i = 0; i < rfid.uid.size; i++) {
-        Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : " ");
-        Serial.print(rfid.uid.uidByte[i], HEX);
-      }
-      Serial.println();
+  // if (rfid.PICC_IsNewCardPresent()) { // new tag is available
+  //   if (rfid.PICC_ReadCardSerial()) { // NUID has been readed
+  //     MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
+  //     Serial.print("RFID/NFC Tag Type: ");
+  //     Serial.println(rfid.PICC_GetTypeName(piccType));
 
-      rfid.PICC_HaltA(); // halt PICC
-      rfid.PCD_StopCrypto1(); // stop encryption on PCD
-    }      
+  //     // print UID in Serial Monitor in the hex format
+  //     Serial.print("UID:");
+  //     for (int i = 0; i < rfid.uid.size; i++) {
+  //       Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : " ");
+  //       Serial.print(rfid.uid.uidByte[i], HEX);
+  //     }
+  //     Serial.println();
+
+  //     rfid.PICC_HaltA(); // halt PICC
+  //     rfid.PCD_StopCrypto1(); // stop encryption on PCD
+  //   }    
+  if (!rfid.PICC_IsNewCardPresent()) //Yeni kartın okunmasını bekliyoruz.
+    return;
+
+  if (!rfid.PICC_ReadCardSerial()) //Kart okunmadığı zaman bekliyoruz.
+    return;
+
+  if (rfid.uid.uidByte[0] == ID1[0] && //Okunan kart ID'si ile ID değişkenini karşılaştırıyoruz.
+    rfid.uid.uidByte[1] == ID1[1] &&
+    rfid.uid.uidByte[2] == ID1[2] &&
+    rfid.uid.uidByte[3] == ID1[3]) {
+    ekranaYazdir();
+    if(myData.halit == 0){
+      myData.halit = 1;
+      Serial.println("Hoşgeldin Hanlar Hanı Cihan Padişahı Halit Han Hazretleri");       
+    }
+    else if(myData.halit == 1)
+    {
+      myData.halit = 0;
+      Serial.println("Hoşçakal Hanlar Hanı Cihan Padişahı Halit Han Hazretleri");    
+    }  
+  }        
+  else if(rfid.uid.uidByte[0] == ID2[0] && //Okunan kart ID'si ile ID değişkenini karşılaştırıyoruz.
+    rfid.uid.uidByte[1] == ID2[1] &&
+    rfid.uid.uidByte[2] == ID2[2] &&
+    rfid.uid.uidByte[3] == ID2[3]) {
+    ekranaYazdir();
+    if(myData.emirhan == 0)
+    {
+    myData.emirhan = 1;
+    Serial.println("Hoşgeldin Emirhan");       
+    }
+    else if(myData.emirhan == 1)
+    {
+    myData.emirhan = 0;
+    Serial.println("Hoşçakal Emirhan");    
+    }
+    }
+    
+  else if(rfid.uid.uidByte[0] == ID3[0] && //Okunan kart ID'si ile ID değişkenini karşılaştırıyoruz.
+    rfid.uid.uidByte[1] == ID3[1] &&
+    rfid.uid.uidByte[2] == ID3[2] &&
+    rfid.uid.uidByte[3] == ID3[3]) {
+    ekranaYazdir();
+    if(myData.buse == 0)
+    {
+    myData.buse = 1;
+    Serial.println("Hoşgeldin Buse");       
+    }
+    else if(myData.buse == 1){
+    myData.buse = 0;
+    Serial.println("Hoşçakal Buse");    
+    }
   }
+  
+  else { //Yetkisiz girişte içerideki komutlar çalıştırılır.
+    Serial.println("Bilinmeyen Kart");
+    ekranaYazdir();
+  }
+  rfid.PICC_HaltA();    
 }
+
+
+void ekranaYazdir() {
+  Serial.print("ID Numarasi: ");
+  for (int sayac = 0; sayac < 4; sayac++) {
+    Serial.print(rfid.uid.uidByte[sayac]);
+    Serial.print(" ");
+  }
+  Serial.println("");
+}
+  
+
