@@ -13,6 +13,12 @@
 
 #include <esp_now.h>
 #include <WiFi.h>
+#include <SPI.h>
+#include <MFRC522.h>
+
+#define SS_PIN  5  // ESP32 pin GIOP5 
+#define RST_PIN 27 // ESP32 pin GIOP27 
+MFRC522 rfid(SS_PIN, RST_PIN);
 
 /* RECEIVER MAC Address */
 uint8_t broadcastAddress[] = {0xC8, 0xF0, 0x9E, 0x9E, 0x1A, 0x6C};
@@ -40,6 +46,11 @@ void setup() {
   /* Init Serial Monitor. */
   Serial.begin(9600); // Serial.begin(115200);
   
+  SPI.begin(); // init SPI bus
+  rfid.PCD_Init(); // init MFRC522
+  Serial.println("Tap an RFID/NFC tag on the RFID-RC522 reader");
+
+  
   /* Set device as a Wi-Fi Station. */
   WiFi.mode(WIFI_STA);
 
@@ -63,6 +74,9 @@ void setup() {
     Serial.println("Failed to add peer");
     return;
   }
+
+  
+  
 }
  
 void loop() {
@@ -73,12 +87,31 @@ void loop() {
   
   /* Send message via ESP-NOW. */
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-   
-  if (result == ESP_OK) {
-    Serial.println("Sent with success");
+  delay(1000);
+  // if (result == ESP_OK) {
+  //   Serial.println("Sent with success");
+  // }
+  // else {
+  //   Serial.println("Error sending the data");
+  // }
+
+
+  if (rfid.PICC_IsNewCardPresent()) { // new tag is available
+    if (rfid.PICC_ReadCardSerial()) { // NUID has been readed
+      MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
+      Serial.print("RFID/NFC Tag Type: ");
+      Serial.println(rfid.PICC_GetTypeName(piccType));
+
+      // print UID in Serial Monitor in the hex format
+      Serial.print("UID:");
+      for (int i = 0; i < rfid.uid.size; i++) {
+        Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : " ");
+        Serial.print(rfid.uid.uidByte[i], HEX);
+      }
+      Serial.println();
+
+      rfid.PICC_HaltA(); // halt PICC
+      rfid.PCD_StopCrypto1(); // stop encryption on PCD
+    }      
   }
-  else {
-    Serial.println("Error sending the data");
-  }
-  delay(2000);
 }
