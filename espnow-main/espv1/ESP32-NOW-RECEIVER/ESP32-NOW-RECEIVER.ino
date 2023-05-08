@@ -28,12 +28,13 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&myData, incomingData, sizeof(myData));
   Serial.print("Bytes received: ");
   Serial.println(len);
-  Serial.print("Halit evde mi? :");
-  Serial.println(myData.halit+"/n");
+  Serial.print("Halit evde mi:" );
+  Serial.println(myData.halit);
   Serial.print("Emirhan evde mi:");
-  Serial.println(myData.emirhan+"/n");
+  Serial.println(myData.emirhan);
   Serial.print("Buse evde mi: ");
-  Serial.println(myData.buse+"/n");
+  Serial.println(myData.buse);
+  Serial.print("-------------------- ");
 }
  
 void setup() {
