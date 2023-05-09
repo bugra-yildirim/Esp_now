@@ -10,6 +10,7 @@
 #include <WiFi.h>
 #include <SPI.h>
 #include <MFRC522.h>
+#include<Preferences.h>
 
 #define SS_PIN  5  // ESP32 pin GIOP5 
 #define RST_PIN 27 // ESP32 pin GIOP27 
@@ -25,6 +26,10 @@ typedef struct struct_message {
     bool emirhan;
     bool buse;
 } struct_message;
+
+Preferences preferences_nesnesi1;  //flash memory'ye yazilacak kod icin degisken
+Preferences preferences_nesnesi2;
+Preferences preferences_nesnesi3;
 
 /* Create a struct_message called myData */
 struct_message myData;
@@ -69,15 +74,20 @@ void setup() {
     Serial.println("Failed to add peer");
     return;
   }
-  myData.halit = 0;  //herkes dışarıda ayarlandı
-  myData.emirhan = 0;
-  myData.buse = 0;
+  
+  //veri alani tanimlandi
+  preferences_nesnesi1.begin("halit_flash", false);
+  preferences_nesnesi2.begin("emirhan_flash", false);
+  preferences_nesnesi3.begin("buse_flash", false);
+  //evde olup olmama durumu flash memoriden cekiliyor, baglanti olmadiginda calisicak
+  myData.halit = preferences_nesnesi1.getBool("durum", false);
+  myData.emirhan = preferences_nesnesi2.getBool("durum", false);
+  myData.buse = preferences_nesnesi3.getBool("durum", false);
   
   
 }
  
 void loop() {
-  1
   /* Send message via ESP-NOW. */
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
   delay(1000);
@@ -193,7 +203,21 @@ void loop() {
     Serial.println("Bilinmeyen Kart");
     ekranaYazdir();
   }
-  rfid.PICC_HaltA();    
+  rfid.PICC_HaltA(); 
+  preferences_nesnesi1.putBool("durum", myData.halit);
+  preferences_nesnesi2.putBool("durum", myData.emirhan);
+  preferences_nesnesi3.putBool("durum", myData.buse);   
+  
+
+  // //durum kodları
+  // Serial.print("Bytes received: ");
+  // Serial.println(len);
+  // Serial.print("Halit evde mi:" );
+  // Serial.println(myData.halit);
+  // Serial.print("Emirhan evde mi:");
+  // Serial.println(myData.emirhan);
+  // Serial.print("Buse evde mi: ");
+  // Serial.println(myData.buse); 
 }
 
 // id seri monitöre yazdırma kodu
