@@ -12,6 +12,10 @@
 #include <MFRC522.h>
 #include<Preferences.h>
 
+#define led_halit 4
+#define led_emirhan 16
+#define led_buse 17
+
 #define SS_PIN  5  // ESP32 pin GIOP5 
 #define RST_PIN 27 // ESP32 pin GIOP27 
 MFRC522 rfid(SS_PIN, RST_PIN);
@@ -42,7 +46,7 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
  
-void setup() {
+void setup() {  
   /* Init Serial Monitor. */
   Serial.begin(9600); // Serial.begin(115200);
   
@@ -50,7 +54,10 @@ void setup() {
   rfid.PCD_Init(); // init MFRC522
   Serial.println("Tap an RFID/NFC tag on the RFID-RC522 reader");
   
-  
+  pinMode(led_halit, OUTPUT);
+  pinMode(led_emirhan, OUTPUT);
+  pinMode(led_buse, OUTPUT);
+    
   /* Set device as a Wi-Fi Station. */
   WiFi.mode(WIFI_STA);
 
@@ -83,7 +90,12 @@ void setup() {
   myData.halit = preferences_nesnesi1.getBool("durum", false);
   myData.emirhan = preferences_nesnesi2.getBool("durum", false);
   myData.buse = preferences_nesnesi3.getBool("durum", false);
-  
+  bool halit = myData.halit;
+  bool emirhan = myData.emirhan;
+  bool buse = myData.buse;
+  digitalWrite(led_halit, halit);
+  digitalWrite(led_emirhan, emirhan);
+  digitalWrite(led_buse, buse);
   
 }
  
@@ -158,12 +170,12 @@ void loop() {
     ekranaYazdir();
     if(myData.halit == 0){
       myData.halit = 1;
-      Serial.println("Hoşgeldin Hanlar Hanı Cihan Padişahı Halit Han Hazretleri");       
+      Serial.println("Hoşgeldin Hanlar Hanı Cihan Padişahı Halit Han Hazretleri");           
     }
     else if(myData.halit == 1)
     {
       myData.halit = 0;
-      Serial.println("Hoşçakal Hanlar Hanı Cihan Padişahı Halit Han Hazretleri");    
+      Serial.println("Hoşçakal Hanlar Hanı Cihan Padişahı Halit Han Hazretleri");
     }  
   }        
   else if(rfid.uid.uidByte[0] == ID2[0] && //Okunan kart ID'si ile ID değişkenini karşılaştırıyoruz.
@@ -206,8 +218,11 @@ void loop() {
   rfid.PICC_HaltA(); 
   preferences_nesnesi1.putBool("durum", myData.halit);
   preferences_nesnesi2.putBool("durum", myData.emirhan);
-  preferences_nesnesi3.putBool("durum", myData.buse);   
-  
+  preferences_nesnesi3.putBool("durum", myData.buse);  
+  digitalWrite(led_halit, myData.halit);
+  digitalWrite(led_emirhan, myData.emirhan);
+  digitalWrite(led_buse, myData.buse); 
+  delay(1); 
 
   // //durum kodları
   // Serial.print("Bytes received: ");

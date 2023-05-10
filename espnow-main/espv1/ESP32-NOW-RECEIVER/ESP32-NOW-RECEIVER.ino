@@ -5,6 +5,11 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include<Preferences.h>
+#include<MPU6050_tockn.h>
+#include <Wire.h>
+
+int buzzer = 32;
+MPU6050 mpu6050(Wire);
 
 /* Structure example to receive data. */
 /* Must match the sender structure. */
@@ -46,8 +51,13 @@ void setup() {
   Serial.println("--- SYSTEM STARTING ---");
   Serial.println("--- PLEASE STAND BY ---");  
   
-  
-  
+  //MPU sensör başlatma ayarları. İlk başlamada kartı stabil tutun. Gyro ofsetleri belirler.
+  Wire.begin();
+  mpu6050.begin();
+  Serial.println("MPU-6050 sensör bulundu kartı oynatmadan bekleyin");
+  mpu6050.calcGyroOffsets(true);
+
+  pinMode(buzzer,OUTPUT);
   
   //veri alani tanimlandi
   preferences_nesnesi1.begin("halit_flash", false);
@@ -63,6 +73,11 @@ void setup() {
   Serial.println(myData.emirhan);
   Serial.print("Buse evde mi: ");
   Serial.println(myData.buse);
+
+  int situation_code=0;
+  //0 normal
+  //1 alarm
+  //2 collapse
   
   
   /* Set device as a Wi-Fi Station. */
@@ -84,5 +99,39 @@ void loop() {
   //dedectors
   //alarm
   //situation codes
+  int x_eks1,y_eks1,z_eks1,x_eks2,y_eks2,z_eks2,degisim = 0;
+  mpu6050.update();//verileri güncellemek için gerekli
+  Serial.print("açı_X : ");
+  Serial.print(mpu6050.getAngleX());
+  Serial.print("\açı_Y : ");
+  Serial.print(mpu6050.getAngleY());
+  Serial.print("\açı_Z : ");
+  Serial.println(mpu6050.getAngleZ());
+  x_eks1= mpu6050.getAngleX();
+  y_eks1= mpu6050.getAngleY();
+  z_eks1= mpu6050.getAngleZ();
+  delay(10); 
+  mpu6050.update();//verileri güncellemek için gerekli
+  Serial.print("açı_X : ");
+  Serial.print(mpu6050.getAngleX());
+  Serial.print("açı_Y : ");
+  Serial.print(mpu6050.getAngleY());
+  Serial.print("açı_Z : ");
+  Serial.println(mpu6050.getAngleZ());
+  x_eks2= mpu6050.getAngleX();
+  y_eks2= mpu6050.getAngleY();
+  z_eks2= mpu6050.getAngleZ();
+  degisim = degisim +abs(x_eks2 - x_eks1);
+  degisim = degisim +abs(y_eks2 - y_eks1);
+  degisim = degisim +abs(z_eks2 - z_eks1);
+  Serial.print("degisim : ");
+  Serial.println(degisim);
 
+  if(degisim>1)
+  {
+    digitalWrite(buzzer, HIGH);
+    }
+    else{
+    digitalWrite(buzzer, LOW); 
+     }  
 }
