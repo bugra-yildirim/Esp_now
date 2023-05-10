@@ -8,9 +8,14 @@
 #include<MPU6050_tockn.h>
 #include <Wire.h>
 
+#define led1 4
+
 int buzzer = 32;
 MPU6050 mpu6050(Wire);
+int gaz_deger;
+int gaz_esik = 350;
 
+    
 /* Structure example to receive data. */
 /* Must match the sender structure. */
 typedef struct struct_message {
@@ -65,6 +70,7 @@ void setup() {
   mpu6050.calcGyroOffsets(true);
 
   pinMode(buzzer,OUTPUT);
+  pinMode(led1, OUTPUT);
   
   //veri alani tanimlandi
   preferences_nesnesi1.begin("halit_flash", false);
@@ -103,6 +109,14 @@ void loop() {
   //dedectors
   //alarm
   //situation codes
+  gaz_deger = analogRead(35);
+  if(gaz_deger>gaz_esik){
+    while(1){
+    digitalWrite(buzzer, HIGH);
+    digitalWrite(led1, HIGH);
+    }
+  }  
+  Serial.println(gaz_deger);
   int x_eks1,y_eks1,z_eks1,x_eks2,y_eks2,z_eks2,degisim = 0;
   mpu6050.update();//verileri güncellemek için gerekli
   Serial.print("açı_X : ");
@@ -135,21 +149,120 @@ void loop() {
   {
     alarm_code = 1;
     digitalWrite(buzzer, HIGH);
+    digitalWrite(led1, HIGH);
     }
-    else if (degisim>30)
-    {
-    collapse_code = 1;
-     }
      else
      {
        alarm_code=0;
       digitalWrite(buzzer, LOW);
+      digitalWrite(led1, LOW);
      }  
+  
+ if (degisim>20)
+    {
+    collapse_code = 1;
+    Serial.println("---------------COLLAPSE--------------------");    
+ }
+  
+
   
   if(collapse_code == 1){
     //yıkım durumu
-    //digitalWrite(buzzer, HIGH);
-    //digitalWrite(????led, HIGH);          
+    digitalWrite(buzzer, HIGH);
+    digitalWrite(led1, HIGH);        
+   // delay(3*60*1000); //deprem anı
+    digitalWrite(buzzer, LOW);
+    int gaz_deger;
+    int gaz_esik = 400;
+    gaz_deger = analogRead(35);           //Sensörden analog değer okuyoruz.
+    Serial.println(gaz_esik);
+  if(gaz_deger > gaz_esik){           //Sensörden okunan değer eşik değerinden büyükse çalışır.
+    for(int a=0;a<180;a++){
+      digitalWrite(buzzer, HIGH);
+    delay(1000);
+    digitalWrite(buzzer, LOW);
+    delay(1000);      
+    }
+  }
+    
+    while(1){
+    int redLED = buzzer; // Setting Value of redLED as 13
+    int dit = 150; // Setting Value of dit as 150
+    int dah = 400; // settiing Value of dah as 500
+      // DIT
+
+      for(int a=0;a<6;a++){
+
+
+    //DIT
+
+    digitalWrite (redLED,HIGH);
+    delay(dit);
+    digitalWrite (redLED,LOW);
+    delay(dit);
+
+    //DIT
+
+    digitalWrite (redLED,HIGH);
+    delay(dit);
+    digitalWrite (redLED,LOW);
+    delay(dit);
+
+        //DIT
+
+    digitalWrite (redLED,HIGH);
+    delay(dit);
+    digitalWrite (redLED,LOW);
+    delay(dah);
+
+    //DAH
+
+
+    digitalWrite (redLED,HIGH);
+    delay(dah);
+    digitalWrite (redLED,LOW);
+    delay(dit);
+
+    //DAH
+
+    digitalWrite (redLED,HIGH);
+    delay(dah);
+    digitalWrite (redLED,LOW);
+    delay(dit);
+
+    //DAH
+
+    digitalWrite (redLED,HIGH);
+    delay(dah);
+    digitalWrite (redLED,LOW);
+    delay(dah);
+
+        //DIT
+
+    digitalWrite (redLED,HIGH);
+    delay(dit);
+    digitalWrite (redLED,LOW);
+    delay(dit);
+
+    //DIT
+
+    digitalWrite (redLED,HIGH);
+    delay(dit);
+    digitalWrite (redLED,LOW);
+    delay(dit);
+
+        //DIT
+
+    digitalWrite (redLED,HIGH);
+    delay(dit);
+    digitalWrite (redLED,LOW);
+    delay(dit);
+
+    delay(2000);
+    }
+    digitalWrite(led1, LOW);
+    delay(1000*1800);
+    }  
   }
 
 
