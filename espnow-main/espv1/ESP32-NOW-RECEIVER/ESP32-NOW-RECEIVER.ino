@@ -19,6 +19,13 @@ typedef struct struct_message {
     bool buse;
 } struct_message;
 
+  bool alarm_code =0;
+  //0 normal
+  //1 alarm
+  bool collapse_code=0;
+  //0 normal
+  //1 collapse
+
 Preferences preferences_nesnesi1;  //flash memory'ye yazilacak kod icin degisken
 Preferences preferences_nesnesi2;
 Preferences preferences_nesnesi3;
@@ -74,10 +81,7 @@ void setup() {
   Serial.print("Buse evde mi: ");
   Serial.println(myData.buse);
 
-  int situation_code=0;
-  //0 normal
-  //1 alarm
-  //2 collapse
+
   
   
   /* Set device as a Wi-Fi Station. */
@@ -129,9 +133,27 @@ void loop() {
 
   if(degisim>1)
   {
+    alarm_code = 1;
     digitalWrite(buzzer, HIGH);
     }
-    else{
-    digitalWrite(buzzer, LOW); 
+    else if (degisim>30)
+    {
+    collapse_code = 1;
+     }
+     else
+     {
+       alarm_code=0;
+      digitalWrite(buzzer, LOW);
      }  
+  
+  if(collapse_code == 1){
+    //yıkım durumu
+    //digitalWrite(buzzer, HIGH);
+    //digitalWrite(????led, HIGH);          
+  }
+
+
+
+
+     
 }
