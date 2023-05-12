@@ -2,22 +2,21 @@
 
 */
 
-#include <esp_now.h>
-#include <WiFi.h>
-#include<Preferences.h>
-#include<MPU6050_tockn.h>
-#include <Wire.h>
+#include <esp_now.h>  //esp-now özelliğini kullanmak için kütüphane
+#include <WiFi.h>  // wifi modülünü kullanabilmek için kütüphane
+#include<Preferences.h>   //flash memory ye kayıt için kullanılan fonksiyonları içeren kütüphane
+#include<MPU6050_tockn.h>  // mpu6050 ivme ve gyro sensörünü kullanmak için kütüphane
+#include <Wire.h> // veri gönderiminde kullanılan kütüphane
 
-#define led1 4
+#define led1 4 // led tanımlaması
 
-int buzzer = 32;
+int buzzer = 32;  // buzzer tanımlaması
 MPU6050 mpu6050(Wire);
 int gaz_deger;
 int gaz_esik = 350;
 
     
-/* Structure example to receive data. */
-/* Must match the sender structure. */
+// veri transferinde kullanılacak datalar için yeni bir yapı tanımlandı
 typedef struct struct_message {
     bool halit;
     bool emirhan;
@@ -31,19 +30,19 @@ typedef struct struct_message {
   //0 normal
   //1 collapse
 
-Preferences preferences_nesnesi1;  //flash memory'ye yazilacak kod icin degisken
+Preferences preferences_nesnesi1;  //flash memory'ye yazilacak kod icin degisken tanımı
 Preferences preferences_nesnesi2;
 Preferences preferences_nesnesi3;
 
-// Create a struct_message called myData
+// tanımladığımız yapıda bir değişken tanımlıyoruz
 struct_message myData;
 
-// callback function that will be executed when data is received
+// veri alındığında çağırılan fonksiyon
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&myData, incomingData, sizeof(myData));
-  Serial.print("Bytes received: ");
+  Serial.print("Bytes received: ");    // serial monitör yazdırma komutları
   Serial.println(len);
-  Serial.print("Halit evde mi:" );
+  Serial.print("Halit evde mi:" );    
   Serial.println(myData.halit);
   Serial.print("Emirhan evde mi:");
   Serial.println(myData.emirhan);
@@ -59,7 +58,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 void setup() {
   /* Initialize Serial Monitor. */
   Serial.begin(9600); // Serial.begin(115200);
-  Serial.println();
+  Serial.println();                                   // sistemin başladığını yazdıran komutlar
   Serial.println("--- SYSTEM STARTING ---");
   Serial.println("--- PLEASE STAND BY ---");  
   
@@ -76,10 +75,13 @@ void setup() {
   preferences_nesnesi1.begin("halit_flash", false);
   preferences_nesnesi2.begin("emirhan_flash", false);
   preferences_nesnesi3.begin("buse_flash", false);
-  //evde olup olmama durumu flash memoriden cekiliyor, baglanti olmadiginda calisicak
+  
+  //                                     !!!!!!!!!!!!!!!!!!!!!!!      evde olup olmama durumu flash memoriden cekiliyor, baglanti olmadiginda bilgi sağlayacak    !!!!!!!!!!!
   myData.halit = preferences_nesnesi1.getBool("durum", false);
   myData.emirhan = preferences_nesnesi2.getBool("durum", false);
   myData.buse = preferences_nesnesi3.getBool("durum", false);  
+  
+  Serial.println();                        //   !!!!!!!!          Sistem başladığında flash memoryden çekilen verilen gösteriliyor
   Serial.print("Halit evde mi:" );
   Serial.println(myData.halit);
   Serial.print("Emirhan evde mi:");
@@ -90,7 +92,7 @@ void setup() {
 
   
   
-  /* Set device as a Wi-Fi Station. */
+//       aygıt wifi ayarlamaları
   WiFi.mode(WIFI_STA);  
 
   /* Init ESP-NOW. */
@@ -99,27 +101,27 @@ void setup() {
     return;
   }
   
-  /* Once ESPNow is successfully Init, we will register for recv CB to */
-  /* get recv packer info */
-  esp_now_register_recv_cb(OnDataRecv);
+
+  esp_now_register_recv_cb(OnDataRecv);  // data alındığında çalıştırılacak fonksiyon için tanımlanan register fonksiyonu (esp_now kütüphanesinden)
 }
  
 void loop() {
-  //memory functions-------- ok in setup
-  //dedectors
-  //alarm
-  //situation codes
-  gaz_deger = analogRead(35);
+
+  gaz_deger = analogRead(35);                      // gaz ölçümü yapılacak pin tanımı
   if(gaz_deger>gaz_esik){
-    while(1){
+    while(1){                                       // gaz tespitinde çalışıcak kod
     digitalWrite(buzzer, HIGH);
     digitalWrite(led1, HIGH);
     }
   }  
   Serial.println(gaz_deger);
-  int x_eks1,y_eks1,z_eks1,x_eks2,y_eks2,z_eks2,degisim = 0;
-  mpu6050.update();//verileri güncellemek için gerekli
-  Serial.print("açı_X : ");
+  
+  int x_eks1,y_eks1,z_eks1,x_eks2,y_eks2,z_eks2,degisim = 0;        // gyro sensördedeğişikliği algılamak için kullanılacak değişkenler
+  mpu6050.update();                                //verileri güncelleniyor
+
+
+
+  Serial.print("açı_X : ");                                                             // açı bilgileri alınıyor
   Serial.print(mpu6050.getAngleX());
   Serial.print("\açı_Y : ");
   Serial.print(mpu6050.getAngleY());
@@ -128,9 +130,13 @@ void loop() {
   x_eks1= mpu6050.getAngleX();
   y_eks1= mpu6050.getAngleY();
   z_eks1= mpu6050.getAngleZ();
+  
   delay(10); 
-  mpu6050.update();//verileri güncellemek için gerekli
-  Serial.print("açı_X : ");
+  mpu6050.update();//verileri güncelleniyor
+  
+                                                                             
+
+  Serial.print("açı_X : ");                                             // açı bilgileri 10 ms sonra tekrar alınıyor
   Serial.print(mpu6050.getAngleX());
   Serial.print("açı_Y : ");
   Serial.print(mpu6050.getAngleY());
@@ -139,13 +145,16 @@ void loop() {
   x_eks2= mpu6050.getAngleX();
   y_eks2= mpu6050.getAngleY();
   z_eks2= mpu6050.getAngleZ();
-  degisim = degisim +abs(x_eks2 - x_eks1);
+
+
+  
+  degisim = degisim +abs(x_eks2 - x_eks1);                 // 3 eksen için de toplam bir değişim hesaplanıyor
   degisim = degisim +abs(y_eks2 - y_eks1);
   degisim = degisim +abs(z_eks2 - z_eks1);
   Serial.print("degisim : ");
   Serial.println(degisim);
 
-  if(degisim>1)
+  if(degisim>1)                                                 // değişime göre durum belirleniyor
   {
     alarm_code = 1;
     digitalWrite(buzzer, HIGH);
@@ -166,11 +175,11 @@ void loop() {
   
 
   
-  if(collapse_code == 1){
+  if(collapse_code == 1){                                                    //yıkım durumunda gerçekleştirilecek işlemler
     //yıkım durumu
     digitalWrite(buzzer, HIGH);
     digitalWrite(led1, HIGH);        
-   // delay(3*60*1000); //deprem anı
+   // delay(3*60*1000);                                   //deprem anında 
     digitalWrite(buzzer, LOW);
     int gaz_deger;
     int gaz_esik = 400;
@@ -186,15 +195,15 @@ void loop() {
   }
     
     while(1){
-    int redLED = buzzer; // Setting Value of redLED as 13
-    int dit = 150; // Setting Value of dit as 150
-    int dah = 400; // settiing Value of dah as 500
+    int redLED = buzzer;
+    int dit = 150; 
+    int dah = 400; 
       // DIT
 
       for(int a=0;a<6;a++){
 
 
-    //DIT
+    //DIT                                  //bir led için yazılmış  sos sinyal kodu  buzzer ı led e eşitleyerek buzzer da çalmasını sağladım
 
     digitalWrite (redLED,HIGH);
     delay(dit);
